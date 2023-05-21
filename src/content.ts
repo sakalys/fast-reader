@@ -1,3 +1,5 @@
+let isBold = false;
+
 function boldify(text: string): string {
   if (text.trim() === '') {
     return text;
@@ -13,7 +15,7 @@ function boldify(text: string): string {
       return part;
     }
 
-    return `<b>${part.slice(0, mid)}</b>${part.slice(mid)}`;
+    return `<span class="frb-pref">${part.slice(0, mid)}</span>${part.slice(mid)}`;
   });
 
   return parts.join(' ');
@@ -27,20 +29,33 @@ function traverse(node: ChildNode, parent: HTMLElement, callback: (node: HTMLEle
   callback(node as HTMLElement, parent);
 }
 
+function setupText() {
+  traverse(document.body, document.body.parentElement, (node, parent) => {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim() !== '') {
+      const textContent = node.textContent || '';
+      const modifiedTextContent = boldify(textContent);
+      // node.innerHTML = modifiedTextContent;
+      const nodeClone = document.createElement('span');
+      (nodeClone as HTMLElement).innerHTML = modifiedTextContent;
+      parent.replaceChild(nodeClone, node)
+      // node.textContent = textContent;;
+    }
+  });
+}
+
 // Listen for a message from the background script
 chrome.runtime.onMessage.addListener((request) => {
   if (request.action === 'toggle') {
-    debugger;
-    traverse(document.body, document.body.parentElement, (node, parent) => {
-      if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim() !== '') {
-        const textContent = node.textContent || '';
-        const modifiedTextContent = boldify(textContent);
-        // node.innerHTML = modifiedTextContent;
-        const nodeClone = document.createElement('span');
-        (nodeClone as HTMLElement).innerHTML = modifiedTextContent;
-        parent.replaceChild(nodeClone, node)
-        // node.textContent = textContent;;
-      }
-    });
+    if (!isBold) {
+      setupText()
+
+      const style = document.createElement('style');
+      style.innerHTML = `
+      .frb-pref {
+        font-weight: bold;
+      }`
+      document.head.appendChild(style);
+      isBold = true;
+    }
   }
 });
