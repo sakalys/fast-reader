@@ -15,7 +15,7 @@ function boldify(text: string): string {
       return part;
     }
 
-    return `<span class="frb-pref">${part.slice(0, mid)}</span>${part.slice(mid)}`;
+    return `<span class="frb-pref">${part.slice(0, mid + 1)}</span>${part.slice(mid + 1)}`;
   });
 
   return parts.join(' ');
