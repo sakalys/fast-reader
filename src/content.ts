@@ -51,6 +51,9 @@ chrome.runtime.onMessage.addListener((request) => {
 
       const style = document.createElement('style');
       style.innerHTML = `
+      * {
+        font-family: "Verdana" !important;
+      }
       .frb-pref {
         font-weight: bold;
       }`
